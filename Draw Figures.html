@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Draw Figures</title>
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+    </head>
+    <body class = "container">
+		<center>
+			<canvas id="myCanvas" width="1000" height="750" 
+					style="background-color:#eee; border: 1px solid #ccc; margin:10px;">
+			</canvas>
+			
+		</center>
+		<div class ="row">
+		<center>
+			<div class="information col-md-6">
+			</div>
+		</center>
+		<div class="col-md-6">
+			<button class="btn btn-danger"  onclick="clearCanvas()"> Clear Canvas</button>
+			<button class="btn btn-info" data-toggle="modal" data-target="#aboutModal"> About</button>
+		</div>
+		</div>
+
+		<!-- Modal -->
+		<div class="modal fade" id="aboutModal" tabindex="-1" role="dialog" aria-labelledby="aboutModalLabel" aria-hidden="true">
+		  <div class="modal-dialog" role="document">
+			<div class="modal-content">
+			  <div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+				<h2 class="modal-title" id="aboutModalLabel">Draw Figures Program</h2>
+				<h5 class="modal-title" >Developed by Volodymyr Poberezhniak</h5>
+			  </div>
+			  <div class="modal-body">
+				<center>
+					<img alt="Parallelogram" src="figure.jpg"/>
+				</center>
+				<br>
+				<p><strong>For a successful draw parallelogram, you must draw points in the next sequence.</strong></p>
+				<p><strong>The first point must locate in place of point A.</strong></p>
+				<p><strong>The second point must locate in place of point B.</strong></p>
+				<p><strong>The third point must locate in place of point C.</strong></p>
+				<p><strong>The program will draw the last point and parallelogram with a circle. </strong></p>
+				<p><strong>You can move points.</p>
+				<p><strong>The button "Clear Canvas" clears the canvas and you can draw the figure again.</strong></p>
+			  </div>
+			  <div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+			  </div>
+			</div>
+		  </div>
+		</div>
+	</body>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
+
+	<script>
+		let Point = class {
+		  constructor(x, y) {
+			this.x = x;
+			this.y = y;
+		  }
+		};
+			
+		var radius= 11/2;
+		var selected = false;
+		var pointCount = 0;
+		var canvas = document.getElementById("myCanvas"), 
+		
+		context = canvas.getContext("2d"),
+		w = canvas.width,
+		h = canvas.height;
+		 
+		var pointArray = []			
+		var mouse = new Point(0,0);
+		
+		var draw = false;
+		var sideLength = 0;
+		var drawPoint = 0;
+		
+		var Test = function(...points)
+		{
+			this.points = points
+		}
+		
+		Test.prototype = {
+			draw:function(x,y,pointCount){
+						 
+				 draw = true; 
+				 context.beginPath(); 
+				 context.arc(x,y, radius, 0, 2 * Math.PI, false); 
+				 context.strokeStyle = "red"; 
+				 context.fillStyle = "red"; 
+				 context.fill(); 
+				 context.stroke(); 
+				 context.closePath(); 
+				 if(!selected){
+					let point = new Point (x,y) 
+					pointArray.push(point); 
+					$( ".information" ).append("<p><strong>"+ pointCount +" point coordinates: <span id='point" + pointCount + "'>" + x + " px " + y + " px </span></strong></p" ); 
+				}
+			},		  
+		};
+		
+		canvas.addEventListener("mousedown", function(e){			 
+			mouse.x = e.pageX - this.offsetLeft;
+			mouse.y = e.pageY - this.offsetTop;
+			
+			if (pointCount >=3)
+			{
+				for(var i = 0; i < pointArray.length; i++){
+					if(PointInCircle(mouse.x,mouse.y,pointArray[i].x ,pointArray[i].y))
+					{ 
+						drawPoint = i
+						selected = true;
+						break;
+					}
+				}
+				return;
+			}
+			pointCount++; 
+			var  ses = new Test()
+			ses.draw(mouse.x,mouse.y,pointCount);
+			if(pointCount == 3)
+			{			 
+				 sideLength = pointArray[2].x - pointArray[1].x;
+				 let x = pointArray[0].x + sideLength;
+				 ses.draw(x,pointArray[0].y,++pointCount);
+				 drawRectangle();		 
+			}
+		});
+						
+		canvas.addEventListener("mousemove", function(e){
+		
+			if (pointCount >=3 && selected)
+			{	
+				mouse.x = e.pageX - this.offsetLeft;
+				mouse.y = e.pageY - this.offsetTop;
+
+				var  ses = new Test()
+				context.clearRect(0, 0, w, h);
+				pointArray[drawPoint].x = mouse.x;
+				pointArray[drawPoint].y = mouse.y;
+				for(var i = 0; i<pointArray.length; i++)
+				{
+					let id = i+1;
+					let idPoint = "#point"+id ;
+					ses.draw(pointArray[i].x, pointArray[i].y);
+					$( idPoint ).text(pointArray[i].x + " px " + pointArray[i].y + " px");
+				}
+
+				drawRectangle();							
+			}
+			else{
+				return;
+			}	
+		});
+		
+		canvas.addEventListener("mouseup", function(e){
+			selected = false;
+		});
+	
+		function drawRectangle()
+		{
+			context.beginPath();
+			context.moveTo(pointArray[0].x, pointArray[0].y);
+			for(var i = 1; i<pointArray.length; i++)
+			{
+				context.lineTo(pointArray[i].x, pointArray[i].y);
+			}
+			context.lineTo(pointArray[0].x, pointArray[0].y);
+			context.strokeStyle = "blue";
+			context.stroke();
+			context.closePath();
+			x = (pointArray[0].x+ pointArray[2].x)/2;
+			y = (pointArray[0].y+ pointArray[2].y)/2;
+			let area = 0;
+			if (selected)
+			{
+				area = CalculateArea();
+				$( "#area" ).text(area);
+			}
+			else{
+				area = sideLength * (pointArray[0].y - pointArray[1].y);
+				$( ".information" ).append( "<p><strong>Parallelogram and circe area: <span id='area'>" + area + " </span> px</strong></p" );
+			}
+			drawCircle(x,y,area);
+		}
+		
+		function drawCircle(x,y,area)
+		{
+			let circleRadius = Math.sqrt(area/Math.PI);
+			
+			context.beginPath();
+			context.arc(x,y, circleRadius, 0, 2 * Math.PI, false);
+			context.strokeStyle = "yellow";
+			context.stroke();
+			context.closePath();
+		}
+		
+		function clearCanvas()
+		{
+			context.clearRect(0, 0, canvas.width, canvas.height);;
+			pointCount = 0;
+			pointArray = [];
+			mouse = new Point(0,0);
+			$('.information').children().remove();
+		}
+		
+		function PointInCircle(middleCircleX,middleCircleY,poinInCirleX,pointInCircleY)
+		{
+			sqrRadius = Math.pow(radius,2);
+			xCordunata = Math.pow(poinInCirleX-middleCircleX,2);
+			yCordunata = Math.pow(pointInCircleY-middleCircleY,2);
+			rivnya =xCordunata+yCordunata;
+			
+			if (sqrRadius >= rivnya && rivnya != 0)
+			{
+				return true;
+			}else 
+			{
+				return false;
+			}
+		}
+		
+		function CalculateArea(){
+			if(drawPoint != 2){
+				sideLength = pointArray[3].x - pointArray[0].x;
+				return sideLength * (pointArray[0].y - pointArray[1].y);
+			}else {
+				sideLength = pointArray[2].x - pointArray[1].x;
+				return sideLength * (pointArray[3].y - pointArray[2].y);
+			}
+		}
+	
+	</script>
+</html>
