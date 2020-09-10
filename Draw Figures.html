@@ -82,12 +82,12 @@
 		var sideLength = 0;
 		var drawPoint = 0;
 		
-		var Test = function(...points)
+		var BuidPoints = function(...points)
 		{
 			this.points = points
 		}
 		
-		Test.prototype = {
+		BuidPoints.prototype = {
 			draw:function(x,y,pointCount){
 						 
 				 draw = true; 
@@ -123,13 +123,13 @@
 				return;
 			}
 			pointCount++; 
-			var  ses = new Test()
-			ses.draw(mouse.x,mouse.y,pointCount);
+			var  builder = new BuidPoints()
+			builder.draw(mouse.x,mouse.y,pointCount);
 			if(pointCount == 3)
 			{			 
 				 sideLength = pointArray[2].x - pointArray[1].x;
 				 let x = pointArray[0].x + sideLength;
-				 ses.draw(x,pointArray[0].y,++pointCount);
+				 builder.draw(x,pointArray[0].y,++pointCount);
 				 drawRectangle();		 
 			}
 		});
@@ -141,7 +141,7 @@
 				mouse.x = e.pageX - this.offsetLeft;
 				mouse.y = e.pageY - this.offsetTop;
 
-				var  ses = new Test()
+				var  builder = new BuidPoints()
 				context.clearRect(0, 0, w, h);
 				pointArray[drawPoint].x = mouse.x;
 				pointArray[drawPoint].y = mouse.y;
@@ -149,7 +149,7 @@
 				{
 					let id = i+1;
 					let idPoint = "#point"+id ;
-					ses.draw(pointArray[i].x, pointArray[i].y);
+					builder.draw(pointArray[i].x, pointArray[i].y);
 					$( idPoint ).text(pointArray[i].x + " px " + pointArray[i].y + " px");
 				}
 
@@ -216,9 +216,9 @@
 			sqrRadius = Math.pow(radius,2);
 			xCordunata = Math.pow(poinInCirleX-middleCircleX,2);
 			yCordunata = Math.pow(pointInCircleY-middleCircleY,2);
-			rivnya =xCordunata+yCordunata;
+			Equation = xCordunata+yCordunata;
 			
-			if (sqrRadius >= rivnya && rivnya != 0)
+			if (sqrRadius >= Equation && Equation != 0)
 			{
 				return true;
 			}else 
