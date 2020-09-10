@@ -77,7 +77,8 @@
 		 
 		var pointArray = []			
 		var mouse = new Point(0,0);
-		
+		var mouseCordinare = new Point(0,0);
+		var startingSecondPoint = new Point (0,0);
 		var draw = false;
 		var sideLength = 0;
 		var drawPoint = 0;
@@ -109,7 +110,8 @@
 		canvas.addEventListener("mousedown", function(e){			 
 			mouse.x = e.pageX - this.offsetLeft;
 			mouse.y = e.pageY - this.offsetTop;
-			
+			mouseCordinare.x = mouse.x 
+			mouseCordinare.y = mouse.y
 			if (pointCount >=3)
 			{
 				for(var i = 0; i < pointArray.length; i++){
@@ -117,6 +119,25 @@
 					{ 
 						drawPoint = i
 						selected = true;
+						switch(i){
+						case 0:
+							startingSecondPoint.x = pointArray[1].x;
+							startingSecondPoint.y = pointArray[3].y;
+							break;
+						case 1:
+							startingSecondPoint.x = pointArray[0].x;
+							startingSecondPoint.y = pointArray[2].y;
+							break;
+						case 2:
+							startingSecondPoint.x = pointArray[3].x;
+							startingSecondPoint.y = pointArray[1].y;
+							break;
+						case 3:
+							startingSecondPoint.x = pointArray[2].x;
+							startingSecondPoint.y = pointArray[0].y;
+							break;
+							
+						}	
 						break;
 					}
 				}
@@ -140,7 +161,74 @@
 			{	
 				mouse.x = e.pageX - this.offsetLeft;
 				mouse.y = e.pageY - this.offsetTop;
-
+				if(mouse.x > mouseCordinare.x)
+				{	
+					switch(drawPoint){
+						case 0:
+							pointArray[1].x = startingSecondPoint.x + (mouse.x - mouseCordinare.x)
+							break;
+						case 1:
+							pointArray[0].x = startingSecondPoint.x + (mouse.x - mouseCordinare.x)
+							break;
+						case 2:
+							pointArray[3].x = startingSecondPoint.x + (mouse.x - mouseCordinare.x)
+							break;
+						case 3:
+							pointArray[2].x = startingSecondPoint.x + (mouse.x - mouseCordinare.x)
+							break;
+						
+							
+					}
+				}else {
+					switch(drawPoint){
+						case 0:
+							pointArray[1].x = startingSecondPoint.x + (mouse.x - mouseCordinare.x)
+							break;
+						case 1:
+							pointArray[0].x = startingSecondPoint.x + (mouse.x - mouseCordinare.x)
+							break;
+						case 2:
+							pointArray[3].x = startingSecondPoint.x + (mouse.x - mouseCordinare.x)
+							break;
+						case 3:
+							pointArray[2].x = startingSecondPoint.x + (mouse.x - mouseCordinare.x)
+							break;
+						
+				}
+				}if(mouse.y > mouseCordinare.y)
+				{					
+					switch(drawPoint){
+						case 0:
+							pointArray[3].y = startingSecondPoint.y + (mouse.y - mouseCordinare.y)
+							break;                              
+						case 1:                                 
+							pointArray[2].y = startingSecondPoint.y + (mouse.y - mouseCordinare.y)
+							break;                              
+						case 2:                                
+							pointArray[1].y = startingSecondPoint.y + (mouse.y - mouseCordinare.y)
+							break;                            
+						case 3:                                 
+							pointArray[0].y = startingSecondPoint.y + (mouse.y - mouseCordinare.y)
+							break;                                                           														               
+					}                                               
+				}else{                                                          
+					switch(drawPoint){                                            
+						case 0:                                                
+							pointArray[3].y = startingSecondPoint.y + (mouse.y - mouseCordinare.y)
+							break;                              
+						case 1:                                
+							pointArray[2].y = startingSecondPoint.y + (mouse.y - mouseCordinare.y)
+							break;                              
+						case 2:                                                               
+							pointArray[1].y = startingSecondPoint.y + (mouse.y - mouseCordinare.y)
+							break;                              
+						case 3:                              
+							pointArray[0].y = startingSecondPoint.y + (mouse.y - mouseCordinare.y)
+							break;
+						
+				}
+				}
+				
 				var  builder = new BuidPoints()
 				context.clearRect(0, 0, w, h);
 				pointArray[drawPoint].x = mouse.x;
@@ -229,6 +317,19 @@
 		
 		function CalculateArea(){
 			if(drawPoint != 2){
+				if(pointArray[0].x>pointArray[3].x) 
+				{
+					sideLength = pointArray[0].x - pointArray[3].x;
+					return sideLength * (pointArray[0].y - pointArray[1].y);
+				}else if(pointArray[0].y<pointArray[1].y)
+				{	
+					sideLength = pointArray[3].x - pointArray[0].x;
+					return sideLength * (pointArray[1].y - pointArray[0].y);
+				}else if(pointArray[0].x>pointArray[3].x && pointArray[0].y<pointArray[1].y)
+				{
+					sideLength = pointArray[0].x - pointArray[3].x;
+					return sideLength * (pointArray[1].y - pointArray[0].y);
+				}
 				sideLength = pointArray[3].x - pointArray[0].x;
 				return sideLength * (pointArray[0].y - pointArray[1].y);
 			}else {
