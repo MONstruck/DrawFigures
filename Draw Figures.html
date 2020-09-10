@@ -80,7 +80,6 @@
 		var mouseCordinare = new Point(0,0);
 		var startingSecondPoint = new Point (0,0);
 		var draw = false;
-		var sideLength = 0;
 		var drawPoint = 0;
 		
 		var BuidPoints = function(...points)
@@ -148,10 +147,8 @@
 			builder.draw(mouse.x,mouse.y,pointCount);
 			if(pointCount == 3)
 			{			 
-				 sideLength = pointArray[2].x - pointArray[1].x;
-				 let x = pointArray[0].x + sideLength;
-				 builder.draw(x,pointArray[0].y,++pointCount);
-				 drawRectangle();		 
+				drawLastPoint(pointCount)
+				drawRectangle();		 
 			}
 		});
 						
@@ -175,9 +172,7 @@
 							break;
 						case 3:
 							pointArray[2].x = startingSecondPoint.x + (mouse.x - mouseCordinare.x)
-							break;
-						
-							
+							break;							
 					}
 				}else {
 					switch(drawPoint){
@@ -270,11 +265,11 @@
 			if (selected)
 			{
 				area = CalculateArea();
-				$( "#area" ).text(area);
+				$( "#area" ).text(Math.round(area));
 			}
 			else{
-				area = sideLength * (pointArray[0].y - pointArray[1].y);
-				$( ".information" ).append( "<p><strong>Parallelogram and circe area: <span id='area'>" + area + " </span> px</strong></p" );
+				area= CalculateArea();
+				$( ".information" ).append( "<p><strong>Parallelogram and circe area: <span id='area'>" + Math.round(area) + " </span> px</strong></p" );
 			}
 			drawCircle(x,y,area);
 		}
@@ -316,26 +311,37 @@
 		}
 		
 		function CalculateArea(){
-			if(drawPoint != 2){
-				if(pointArray[0].x>pointArray[3].x) 
-				{
-					sideLength = pointArray[0].x - pointArray[3].x;
-					return sideLength * (pointArray[0].y - pointArray[1].y);
-				}else if(pointArray[0].y<pointArray[1].y)
-				{	
-					sideLength = pointArray[3].x - pointArray[0].x;
-					return sideLength * (pointArray[1].y - pointArray[0].y);
-				}else if(pointArray[0].x>pointArray[3].x && pointArray[0].y<pointArray[1].y)
-				{
-					sideLength = pointArray[0].x - pointArray[3].x;
-					return sideLength * (pointArray[1].y - pointArray[0].y);
-				}
-				sideLength = pointArray[3].x - pointArray[0].x;
-				return sideLength * (pointArray[0].y - pointArray[1].y);
-			}else {
-				sideLength = pointArray[2].x - pointArray[1].x;
-				return sideLength * (pointArray[3].y - pointArray[2].y);
+
+			let hypotenuse = Math.pow(pointArray[1].x - pointArray[0].x,2) + Math.pow(pointArray[1].y - pointArray[0].y,2);
+			let firstLeg = pointArray[1].x - pointArray[0].x;
+			let secondLeg = Math.sqrt(hypotenuse - Math.pow(firstLeg,2));
+			let sideLength = Math.sqrt(Math.pow(pointArray[3].x - pointArray[0].x,2) + Math.pow(pointArray[3].y - pointArray[0].y,2));
+
+			return sideLength * secondLeg;
+		}
+		
+		function drawLastPoint(pointCount)
+		{	let lastPoint = new Point(0,0)
+			if(pointArray[2].x > pointArray[1].x && pointArray[2].y < pointArray[1].y)			// right top
+			{ 
+				lastPoint.y  = pointArray[0].y -(pointArray[1].y - pointArray[2].y);
+				lastPoint.x  = pointArray[0].x + pointArray[2].x - pointArray[1].x;
+			}else if(pointArray[2].x >= pointArray[1].x && pointArray[2].y >= pointArray[1].y) // right bot
+			{ 
+				lastPoint.y  = pointArray[0].y + (pointArray[2].y - pointArray[1].y);
+				lastPoint.x  = pointArray[0].x + (pointArray[2].x - pointArray[1].x);
+
+			}else if(pointArray[2].x < pointArray[1].x && pointArray[2].y < pointArray[1].y) // left top
+			{
+				lastPoint.y = pointArray[0].y - (pointArray[1].y - pointArray[2].y);
+				lastPoint.x  = pointArray[0].x - (pointArray[1].x - pointArray[2].x);
+			}else if(pointArray[2].x <= pointArray[1].x && pointArray[2].y >= pointArray[1].y) // left bot
+			{
+				lastPoint.y  = pointArray[0].y + pointArray[1].y - pointArray[2].y;
+				lastPoint.x  = pointArray[0].x  - (pointArray[1].x - pointArray[2].x);
 			}
+			let lastBuild = new BuidPoints();
+			lastBuild.draw(lastPoint.x, lastPoint.y,++pointCount);
 		}
 	
 	</script>
